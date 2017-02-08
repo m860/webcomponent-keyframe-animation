@@ -1,0 +1,159 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`keyframe-animation`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="keyframe-animation">
+    <template>
+        <style>
+            :host {
+                display: -webkit-box;
+                display: flex;
+                box-sizing: border-box;
+                width: 100px;
+                height: 100px;
+                background-color: gray;
+            }
+        </style>
+    </template>
+
+    <script>
+        function _genKeyframes(name, srcs) {
+            var len = srcs.length;
+            var unit = 100 / (len - 1);
+            var cssRules = [];
+            for (var i = 0; i < len; i++) {
+                cssRules.push(`${unit * i}% { background-image: url('${srcs[i]}') }`);
+            }
+            var kf = [
+                `@keyframes ${name} {\n ${cssRules.join('\n')} \n}`,
+                `@-webkit-keyframes ${name} {\n ${cssRules.join('\n')} \n}`
+            ];
+            return kf.join('\n')
+        }
+        function _preloadSrc(srcs,callback){
+            var len=srcs.length;
+            var loadedCount=0;
+            function imageLoadCallback(){
+                this.removeEventListener('load',imageLoadCallback,false);
+                loadedCount++;
+                if(loadedCount===len){
+                    callback();
+                }
+            }
+            for(var i=0;i<len;i++){
+                var img=new Image();
+                img.src=srcs[i];
+                img.addEventListener("load",imageLoadCallback,false);
+            }
+        }
+        Polymer({
+
+            is: 'keyframe-animation',
+
+            start:function(callback){
+                var self=this;
+                self.style['animation-name'] = self.name;
+                self.style['-webkit-animation-name'] = self.name;
+                if(callback){
+                    callback.apply(self);
+                }
+            },
+            stop:function(callback){
+                var self=this;
+                self.style['animation-name'] = 'unset';
+                self.style['-webkit-animation-name'] = 'unset';
+                if(callback){
+                    callback.apply(self);
+                }
+            },
+
+            ready: function () {
+                var self=this;
+                // check attribute
+                if (!self.name) {
+                    throw new Error('keyframe-animation attribute name is required')
+                }
+                var srcs = self.src.split(',');
+                if (srcs.length > 0) {
+                    // create keyframes
+                    var style = document.getElementById(self.name);
+                    if (!style) {
+                        style = document.createElement('style');
+                        style.setAttribute('id', self.name);
+                        style.setAttribute('type', 'text/css');
+                    }
+                    style.appendChild(document.createTextNode(_genKeyframes(self.name, srcs)));
+                    document.head.appendChild(style);
+                    // set default style
+                    self.style['animation-duration'] = self.duration;
+                    self.style['-webkit-animation-duration'] = self.duration;
+                    self.style['animation-timing-function'] = 'steps(1)';
+                    self.style['-webkit-animation-timing-function'] = 'steps(1)';
+                    self.style['animation-iteration-count'] = self.iterationcount;
+                    self.style['-webkit-animation-iteration-count'] = self.iterationcount;
+                    self.style['background-repeat'] = 'no-repeat';
+                    self.style['background-size'] = '100%';
+                    self.style['background-position'] = 'center';
+                    self.style['background-origin'] = 'center';
+                    // preload
+                    if(self.preload){
+                        _preloadSrc(srcs,function(){
+                            if(self.autostart){
+                                self.start();
+                            }
+                        });
+                    }
+                    else{
+                        if(self.autostart){
+                            self.start();
+                        }
+                    }
+                }
+            },
+
+            properties: {
+                name: {
+                    type: String,
+                    value: null,
+//                    reflectToAttribute: true
+                },
+                duration: {
+                    type: String,
+                    value: '1s',
+//                    reflectToAttribute: true
+                },
+                iterationcount: {
+                    type: String,
+                    value: 'infinite',
+//                    reflectToAttribute: true
+                },
+                type: {
+                    type: String,
+                    value: 'none', //['none','sprite']
+//                    reflectToAttribute: true
+                },
+                src: {
+                    type: String,
+                    value: '',
+//                    reflectToAttribute: true
+                },
+                preload: {
+                    type: Boolean,
+                    value: false,
+//                    reflectToAttribute: true
+                },
+                autostart:{
+                    type:Boolean,
+                    value:false,
+//                    reflectToAttribute: true
+                }
+            }
+
+        });
+    </script>
+</dom-module>

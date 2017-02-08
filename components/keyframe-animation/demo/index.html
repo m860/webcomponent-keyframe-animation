@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>keyframe-animation demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../keyframe-animation.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic keyframe-animation demo</h3>
+      <demo-snippet>
+        <template>
+          <keyframe-animation
+                  style="width:175px;height:125px;"
+                  name="test"
+                  preload
+                  src="kf/1.png,kf/2.png,kf/3.png,kf/4.png,kf/5.png,kf/6.png,kf/7.png,kf/8.png,kf/9.png,kf/10.png,kf/11.png,kf/12.png,kf/13.png">
+          </keyframe-animation>
+          <button id="start">start</button>
+          <button id="stop">stop</button>
+          <script>
+            document.querySelector('#start').addEventListener('click',function(){
+              document.querySelector('keyframe-animation').start();
+            },false);
+            document.querySelector('#stop').addEventListener('click',function(){
+              document.querySelector('keyframe-animation').stop();
+            },false);
+          </script>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>
